@@ -30,6 +30,15 @@ Open http://localhost:3000. With no `.env.local`, the app runs in **demo
 mode** using built-in fixture data — a fake 10-team league and player pool —
 so you can try every page immediately.
 
+### Deploying (e.g. Vercel)
+
+This also runs fine deployed rather than local — e.g. via Vercel's
+[one-click deploy](https://vercel.com/new/clone?repository-url=https://github.com/djblackjr/fantasy_draft_assistant).
+Set the same environment variables described below under your project's
+**Settings → Environment Variables** instead of `.env.local`, then redeploy
+(env var changes only take effect on the next deploy). The in-app Setup
+page has the same instructions if you land there without this file handy.
+
 ### Connecting your real ESPN league
 
 1. Copy the example env file:

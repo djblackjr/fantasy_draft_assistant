@@ -37,8 +37,9 @@ export default function SetupPage() {
       <div>
         <h1 className="text-2xl font-bold text-white">Setup</h1>
         <p className="text-slate-400 mt-1">
-          Connection settings live in a local <code className="text-slate-300">.env.local</code>{" "}
-          file (never committed to git) — this page just tests the connection.
+          Connection settings are environment variables — set locally in{" "}
+          <code className="text-slate-300">.env.local</code>, or in your host&apos;s dashboard if
+          you deployed this. This page just tests the connection.
         </p>
       </div>
 
@@ -80,33 +81,49 @@ export default function SetupPage() {
 
       <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 text-sm text-slate-400 space-y-4">
         <div className="font-semibold text-slate-200">Connecting your real league</div>
-        <ol className="list-decimal list-inside space-y-2">
-          <li>
-            Copy <code className="text-slate-300">.env.example</code> to{" "}
-            <code className="text-slate-300">.env.local</code> in the project root.
-          </li>
-          <li>
-            Set <code className="text-slate-300">ESPN_LEAGUE_ID</code>,{" "}
-            <code className="text-slate-300">ESPN_SEASON</code>, and{" "}
-            <code className="text-slate-300">ESPN_TEAM_ID</code> from your league&apos;s URL
-            (e.g. <code className="text-slate-300">.../team?leagueId=123456&amp;teamId=3</code>).
-          </li>
-          <li>
-            If your league is <strong>private</strong>, also set{" "}
-            <code className="text-slate-300">ESPN_S2</code> and{" "}
-            <code className="text-slate-300">ESPN_SWID</code> — grab both from your browser&apos;s
-            cookies for fantasy.espn.com while logged in (DevTools → Application/Storage →
-            Cookies). Public leagues can leave these blank.
-          </li>
-          <li>
-            Restart the dev server (<code className="text-slate-300">npm run dev</code>) so the
-            new environment variables load, then click Re-test above.
-          </li>
-        </ol>
+
         <p>
-          Leave <code className="text-slate-300">ESPN_LEAGUE_ID</code> unset to stay in demo mode
-          with fixture data — handy for trying the app out first.
+          Either way, the variables to set are the same:{" "}
+          <code className="text-slate-300">ESPN_LEAGUE_ID</code>,{" "}
+          <code className="text-slate-300">ESPN_SEASON</code>, and{" "}
+          <code className="text-slate-300">ESPN_TEAM_ID</code> from your league&apos;s URL (e.g.{" "}
+          <code className="text-slate-300">.../team?leagueId=123456&amp;teamId=3</code>). If your
+          league is <strong>private</strong>, also set{" "}
+          <code className="text-slate-300">ESPN_S2</code> and{" "}
+          <code className="text-slate-300">ESPN_SWID</code> — grab both from your browser&apos;s
+          cookies for fantasy.espn.com while logged in (DevTools → Application/Storage →
+          Cookies). Public leagues can leave those two blank. Leave{" "}
+          <code className="text-slate-300">ESPN_LEAGUE_ID</code> unset entirely to stay in demo
+          mode with fixture data.
         </p>
+
+        <div>
+          <div className="text-slate-200 font-medium mb-1">If you deployed this (e.g. Vercel)</div>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>Open your project on your host&apos;s dashboard.</li>
+            <li>
+              Add the variables above under <strong>Settings → Environment Variables</strong>.
+            </li>
+            <li>Redeploy — env var changes only take effect on the next deploy.</li>
+          </ol>
+        </div>
+
+        <div>
+          <div className="text-slate-200 font-medium mb-1">If you&apos;re running this locally</div>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>
+              Copy <code className="text-slate-300">.env.example</code> to{" "}
+              <code className="text-slate-300">.env.local</code> in the project root and fill in
+              the variables above.
+            </li>
+            <li>
+              Restart the dev server (<code className="text-slate-300">npm run dev</code>) so they
+              load.
+            </li>
+          </ol>
+        </div>
+
+        <p>Then come back here and click Re-test.</p>
       </div>
     </div>
   );
