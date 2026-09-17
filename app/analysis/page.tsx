@@ -4,7 +4,25 @@ import { useEffect, useMemo, useState } from "react";
 import { useDraftStore } from "@/lib/store";
 import { useEspnSync } from "@/lib/useEspnSync";
 import { byeWeekConflicts, positionBalance } from "@/lib/draftLogic";
-import type { RosterPlayer } from "@/lib/types";
+import type { InjuryStatus, RosterPlayer } from "@/lib/types";
+
+const INJURY_LABEL: Record<InjuryStatus, string> = {
+  ACTIVE: "Active",
+  QUESTIONABLE: "Questionable",
+  DOUBTFUL: "Doubtful",
+  OUT: "Out",
+  INJURY_RESERVE: "IR",
+  SUSPENSION: "Suspended",
+};
+
+const INJURY_COLOR: Record<InjuryStatus, string> = {
+  ACTIVE: "text-emerald-400",
+  QUESTIONABLE: "text-amber-400",
+  DOUBTFUL: "text-orange-400",
+  OUT: "text-red-400",
+  INJURY_RESERVE: "text-red-400",
+  SUSPENSION: "text-red-400",
+};
 
 export default function AnalysisPage() {
   const { loading, error, leagueSettings } = useEspnSync();
@@ -32,6 +50,20 @@ export default function AnalysisPage() {
     [roster]
   );
   const conflicts = useMemo(() => (roster ? byeWeekConflicts(roster) : []), [roster]);
+
+  const injuryGroups = useMemo(() => {
+    if (!roster) return null;
+    const groups: Record<InjuryStatus, RosterPlayer[]> = {
+      ACTIVE: [],
+      QUESTIONABLE: [],
+      DOUBTFUL: [],
+      OUT: [],
+      INJURY_RESERVE: [],
+      SUSPENSION: [],
+    };
+    for (const p of roster) groups[p.injuryStatus ?? "ACTIVE"].push(p);
+    return groups;
+  }, [roster]);
 
   const valuePicks = useMemo(() => {
     if (!roster || !myTeamId) return [];
@@ -78,8 +110,47 @@ export default function AnalysisPage() {
         </div>
       )}
 
-      {roster && roster.length > 0 && (
+      {roster && roster.length > 0 && injuryGroups && (
         <>
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+            <div className="font-semibold text-slate-100 mb-3">Injury report</div>
+            {(["OUT", "DOUBTFUL", "QUESTIONABLE", "INJURY_RESERVE", "SUSPENSION"] as InjuryStatus[]).every(
+              (s) => injuryGroups[s].length === 0
+            ) ? (
+              <div className="text-sm text-emerald-400">
+                Everyone on your roster is Active — no injury designations, likely to play.
+              </div>
+            ) : (
+              <div className="space-y-3 text-sm">
+                {(["OUT", "DOUBTFUL", "QUESTIONABLE", "INJURY_RESERVE", "SUSPENSION"] as InjuryStatus[]).map(
+                  (status) =>
+                    injuryGroups[status].length > 0 && (
+                      <div key={status}>
+                        <span className={`font-medium ${INJURY_COLOR[status]}`}>
+                          {INJURY_LABEL[status]} ({injuryGroups[status].length})
+                        </span>
+                        <span className="text-slate-300">
+                          {" — "}
+                          {injuryGroups[status].map((p) => `${p.name} (${p.position})`).join(", ")}
+                        </span>
+                      </div>
+                    )
+                )}
+                {injuryGroups.ACTIVE.length > 0 && (
+                  <div>
+                    <span className="font-medium text-emerald-400">
+                      Likely to play ({injuryGroups.ACTIVE.length})
+                    </span>
+                    <span className="text-slate-400">
+                      {" — "}
+                      {injuryGroups.ACTIVE.map((p) => p.name).join(", ")}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
               <div className="font-semibold text-slate-100 mb-3">Position balance</div>
@@ -145,14 +216,24 @@ export default function AnalysisPage() {
           <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
             <div className="font-semibold text-slate-100 mb-3">Full roster</div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-              {roster.map((p) => (
-                <div key={p.espnId} className="flex justify-between px-3 py-2 rounded-md bg-slate-900/60">
-                  <span className="text-slate-200">{p.name}</span>
-                  <span className="text-slate-500">
-                    {p.position} · {p.proTeam} · Bye {p.byeWeek ?? "—"}
-                  </span>
-                </div>
-              ))}
+              {roster.map((p) => {
+                const status = p.injuryStatus ?? "ACTIVE";
+                return (
+                  <div key={p.espnId} className="flex justify-between px-3 py-2 rounded-md bg-slate-900/60">
+                    <span className="text-slate-200">
+                      {p.name}
+                      {status !== "ACTIVE" && (
+                        <span className={`ml-2 text-xs font-medium ${INJURY_COLOR[status]}`}>
+                          {INJURY_LABEL[status]}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-slate-500">
+                      {p.position} · {p.proTeam} · Bye {p.byeWeek ?? "—"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </>

@@ -139,6 +139,17 @@ export const DEMO_LEAGUE: LeagueSettings = {
   isSnakeDraft: true,
 };
 
+// A few sample injury designations so demo mode shows the feature —
+// including on "Your Team"'s three drafted players (CeeDee Lamb, Marvin
+// Harrison Jr., Malik Nabers), so /analysis has something to report.
+const DEMO_INJURY_STATUSES: Record<string, EspnPlayer["injuryStatus"]> = {
+  "CeeDee Lamb": "ACTIVE",
+  "Marvin Harrison Jr.": "QUESTIONABLE",
+  "Malik Nabers": "OUT",
+  "Christian McCaffrey": "DOUBTFUL",
+  "Breece Hall": "QUESTIONABLE",
+};
+
 export function demoPlayers(): EspnPlayer[] {
   return RAW_PLAYERS.map((p, i) => ({
     espnId: 100000 + i,
@@ -147,6 +158,7 @@ export function demoPlayers(): EspnPlayer[] {
     proTeam: p.team,
     byeWeek: p.bye,
     drafted: false,
+    injuryStatus: DEMO_INJURY_STATUSES[p.name] ?? "ACTIVE",
   }));
 }
 

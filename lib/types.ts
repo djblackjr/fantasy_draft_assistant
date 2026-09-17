@@ -2,6 +2,16 @@
 
 export type Position = "QB" | "RB" | "WR" | "TE" | "FLEX" | "DST" | "K";
 
+/** ESPN's own injury designation for a player this week. ACTIVE means no
+ * designation — cleared to play as far as the injury report is concerned. */
+export type InjuryStatus =
+  | "ACTIVE"
+  | "QUESTIONABLE"
+  | "DOUBTFUL"
+  | "OUT"
+  | "INJURY_RESERVE"
+  | "SUSPENSION";
+
 /** A player as known to ESPN (or demo fixtures shaped the same way). */
 export interface EspnPlayer {
   espnId: number;
@@ -11,6 +21,7 @@ export interface EspnPlayer {
   byeWeek: number | null;
   /** true once ESPN's draft detail reports this player picked */
   drafted: boolean;
+  injuryStatus: InjuryStatus | null;
 }
 
 /** One completed pick in the live draft. */
@@ -67,4 +78,5 @@ export interface RosterPlayer {
   proTeam: string;
   byeWeek: number | null;
   slot: string;
+  injuryStatus: InjuryStatus | null;
 }

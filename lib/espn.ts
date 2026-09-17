@@ -9,6 +9,7 @@ import type {
   DraftPick,
   EspnPlayer,
   EspnTeam,
+  InjuryStatus,
   LeagueSettings,
   Position,
   RosterPlayer,
@@ -98,6 +99,23 @@ function positionFor(defaultPositionId: number): Position {
   return POSITION_BY_ID[defaultPositionId] ?? "WR";
 }
 
+const KNOWN_INJURY_STATUSES: InjuryStatus[] = [
+  "ACTIVE",
+  "QUESTIONABLE",
+  "DOUBTFUL",
+  "OUT",
+  "INJURY_RESERVE",
+  "SUSPENSION",
+];
+
+/** ESPN already sends this as an enum-shaped string (e.g. "QUESTIONABLE");
+ * this just guards against an unrecognized or missing value. */
+function injuryStatusFor(raw: unknown): InjuryStatus | null {
+  return typeof raw === "string" && KNOWN_INJURY_STATUSES.includes(raw as InjuryStatus)
+    ? (raw as InjuryStatus)
+    : null;
+}
+
 // --- public API ------------------------------------------------------------
 
 export async function getLeagueSettings(): Promise<LeagueSettings> {
@@ -180,6 +198,7 @@ export async function getPlayerUniverse(): Promise<EspnPlayer[]> {
       proTeam: PRO_TEAM_ABBR[p.proTeamId] ?? "FA",
       byeWeek: null, // ESPN's schedule endpoint isn't wired up; comes from the rankings CSV instead
       drafted: !!e.onTeamId && e.onTeamId !== 0,
+      injuryStatus: injuryStatusFor(p.injuryStatus),
     } as EspnPlayer;
   });
 }
@@ -215,6 +234,7 @@ export async function getRoster(teamId: number): Promise<RosterPlayer[]> {
         proTeam: player.proTeam,
         byeWeek: player.byeWeek,
         slot: player.position,
+        injuryStatus: player.injuryStatus,
       };
     });
   }
@@ -231,6 +251,7 @@ export async function getRoster(teamId: number): Promise<RosterPlayer[]> {
       proTeam: PRO_TEAM_ABBR[p.proTeamId] ?? "FA",
       byeWeek: null,
       slot: SLOT_BY_ID[entry.lineupSlotId] ?? "BE",
+      injuryStatus: injuryStatusFor(p.injuryStatus),
     } as RosterPlayer;
   });
 }
